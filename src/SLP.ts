@@ -10,10 +10,10 @@ import TokenType1 from "./TokenType1"
 import Utils from "./Utils"
 
 // exports
-const REST_URL = "https://rest.bitcoin.com/v2/"
-const TREST_URL = "https://trest.bitcoin.com/v2/"
-const SLPDB_URL = "https://slpdb.bitcoin.com/"
-const TSLPDB_URL = "https://tslpdb.bitcoin.com/"
+const REST_URL = "https://rest.tent.app/v2/"
+const TREST_URL = "https://trest.tent.app/v2/"
+const SLPDB_URL = "https://tentslpdb.tent.app/"
+const TSLPDB_URL = "https://ttentslpdb.tent.app/"
 
 // consts
 const slpjs = require("slpjs")

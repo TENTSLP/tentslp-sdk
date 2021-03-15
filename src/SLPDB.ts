@@ -2,7 +2,7 @@
 import axios, { AxiosResponse } from "axios"
 import { QueryInterface, SLPDBResponse } from "./interfaces/SLPInterfaces"
 
-const SLPDB_URL = "https://slpdb.bitcoin.com/"
+const SLPDB_URL = "https://tentslpdb.tent.app/"
 // consts
 const Buffer = require("safe-buffer").Buffer
 
