@@ -9,7 +9,7 @@ export class Socket extends BITBOXSocket {
     if (config.slpsocketURL) {
       this.slpsocketURL = config.slpsocketURL
     } else {
-      this.slpsocketURL = "https://slpsocket.bchdata.cash"
+      this.slpsocketURL = "https://tentslpsocket.tent.app"
     }
   }
 
