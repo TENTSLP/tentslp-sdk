@@ -37,7 +37,7 @@
     "axios": "0.19.0",
     "babel-register": "^6.26.0",
     "bignumber.js": "^8.0.2",
-    "bitbox-sdk": "TENTSLP/bitbox-sdk#fdacaf15849a4a483ccaeb17211cbe23966a2c91",
+    "bitbox-sdk": "TENTSLP/bitbox-sdk#7e3113cf1186b121043abaf1c1da2b638970f8cc",
     "chalk": "^2.3.0",
     "clear": "0.1.0",
     "commander": "^2.13.0",
