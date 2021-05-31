@@ -119,8 +119,8 @@ class TokenType1 {
       mintConfig.burnBaton === true
         ? new BigNumber(0)
         : new BigNumber(mintConfig.additionalTokenQty).times(
-            10 ** tokenInfo.decimals
-          );
+          10 ** tokenInfo.decimals
+        );
 
     const nonSlpUtxos = balances.reduce(
       (previousNonSlpUtxos: any, currentBalance: any, index: number) => [
@@ -150,6 +150,83 @@ class TokenType1 {
       mintConfig.burnBaton === undefined ? false : mintConfig.burnBaton
     );
     return mintTxid
+  }
+
+  async estimatedFee(sendConfig: ISendConfig) {
+    // validate address formats
+    this.validateAddressFormat(sendConfig)
+
+    // normalize funding properties
+    const fundingAddresses = [].concat(sendConfig.fundingAddress);
+    const fundingWifs = [].concat(sendConfig.fundingWif);
+
+    // determine mainnet/testnet
+    const network: string = this.returnNetwork(fundingAddresses[0]);
+
+    // network appropriate BITBOX instance
+    const BITBOX: any = this.returnBITBOXInstance(network)
+
+    // slpjs BITBOX Network instance
+    const bitboxNetwork = new slpjs.BitboxNetwork(BITBOX)
+
+    const tokenId: string = sendConfig.tokenId
+
+    const bchChangeReceiverAddress: string = addy.toSLPAddress(
+      sendConfig.bchChangeReceiverAddress
+    )
+
+    const tokenInfo: any = await bitboxNetwork.getTokenInformation(tokenId)
+    const tokenDecimals: number = tokenInfo.decimals
+
+    let amount: any = sendConfig.amount
+
+    const balances: any = await bitboxNetwork.getAllSlpBalancesAndUtxos(
+      fundingAddresses
+    )
+
+    if (!Array.isArray(amount)) {
+      amount = new BigNumber(amount).times(10 ** tokenDecimals) // Don't forget to account for token precision
+    } else {
+      amount.forEach((amt: number, index: number) => {
+        amount[index] = new BigNumber(amt).times(10 ** tokenDecimals) // Don't forget to account for token precision
+      })
+    }
+
+    const nonSlpUtxos = balances.reduce(
+      (previousNonSlpUtxos: any, currentBalance: any, index: number) => [
+        ...previousNonSlpUtxos,
+        ...currentBalance.result.nonSlpUtxos.map((utxo: any) => ({
+          ...utxo,
+          wif: fundingWifs[index]
+        }))
+      ],
+      []
+    )
+
+    const slpTokenUtxos = balances.reduce(
+      (previousSlpTokenUtxos: any, currentBalance: any, index: number) => [
+        ...previousSlpTokenUtxos,
+        ...(currentBalance.result.slpTokenUtxos[tokenId] || []).map((utxo: any) => ({
+          ...utxo,
+          wif: fundingWifs[index]
+        }))
+      ],
+      []
+    )
+
+    if (slpTokenUtxos.length === 0) throw new Error(`Could not find any SLP token UTXOs`)
+
+    const inputUtxos = [...nonSlpUtxos, ...slpTokenUtxos]
+
+    const fee = await bitboxNetwork.simpleTokenEstimatedFee(
+      tokenId,
+      amount,
+      inputUtxos,
+      sendConfig.tokenReceiverAddress,
+      bchChangeReceiverAddress
+    )
+
+    return fee
   }
 
   async send(sendConfig: ISendConfig) {
@@ -214,7 +291,7 @@ class TokenType1 {
       []
     )
 
-    if(slpTokenUtxos.length === 0) throw new Error(`Could not find any SLP token UTXOs`)
+    if (slpTokenUtxos.length === 0) throw new Error(`Could not find any SLP token UTXOs`)
 
     const inputUtxos = [...nonSlpUtxos, ...slpTokenUtxos]
 
@@ -249,7 +326,7 @@ class TokenType1 {
     const bchChangeReceiverAddress: string = addy.toSLPAddress(
       burnConfig.bchChangeReceiverAddress
     )
-    
+
     const tokenInfo = await bitboxNetwork.getTokenInformation(
       burnConfig.tokenId
     )
@@ -269,7 +346,7 @@ class TokenType1 {
       ],
       []
     )
-    
+
     const slpTokenUtxos = balances.reduce(
       (previousSlpTokenUtxos: any, currentBalance: any, index: number) => [
         ...previousSlpTokenUtxos,
